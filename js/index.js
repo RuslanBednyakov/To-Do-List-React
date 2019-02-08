@@ -10,10 +10,26 @@ class Filters extends React.Component {
   }
 }
 
-class Paging extends React.Component {
+class Page extends React.Component {
   render() {
     return (
-      <div className="container__pagination"></div>
+      <a className="container__pagination_item">{this.props.value}</a>
+    )
+  }
+}
+
+class Paging extends React.Component {
+  render() {
+    const pages = [];
+
+    for(let i = 1; i <= this.props.numberOfPages; i++) {
+      pages.push(
+        <Page key={i} value={i}/>
+      )
+    };
+
+    return (
+      <div className="container__pagination">{pages}</div>
     )
   }
 }
@@ -32,6 +48,7 @@ class Task extends React.Component {
 
 class TaskList extends React.Component {
   render() {
+
     return (
       <ul className="container__task_list">
         {this.props.tasks.map(task => (
@@ -44,11 +61,18 @@ class TaskList extends React.Component {
 
 class ControllPanel extends React.Component {
   render() {
+    const taskText = this.props.taskText;
+
     return (
       <form>
         <button className="container__interface_button button__complete_all">Complete</button>
         <button className="container__interface_button button__delete_all">Delete</button>
-        <input type="text" placeholder="Add new task..." className="container__interface_input" />
+        <input
+          type="text"
+          placeholder="Add new task..."
+          className="container__interface_input"
+          value={taskText}
+        />
         <button className="container__interface_button">Add</button>
       </form>
     );
@@ -56,15 +80,66 @@ class ControllPanel extends React.Component {
 }
   
 class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      taskText: '',
+      isCompleted: false,
+      tasks: [],
+      pageSize: 6,
+      currentPage: 1,
+      filterName: 'All'
+    };
+  }
+
+  filterTasks(tasks) {
+    const filterName = this.state.filterName;
+
+    if(filterName === 'All') {
+      return tasks;
+    }
+
+    const filteredTasks = tasks.filter(function(task) {
+      if(filterName === 'Complete') {
+        return task.isCompleted === true;
+      };
+        return task.isCompleted === false;
+      });
+
+    return filteredTasks;
+  }
+
   render() {
+    const tasks = this.props.tasks;
+    const filteredTasks = this.filterTasks(tasks);
+    
+    const pageSize = this.state.pageSize;
+    const currentPage = this.state.currentPage;
+    const taskCount = filteredTasks.length;
+
+    const numberOfPages = (taskCount <= pageSize) ? 0 : Math.ceil(taskCount/pageSize);
+    let pagedFilteredTasks;
+
+    if (!numberOfPages) {
+      pagedFilteredTasks = filteredTasks;
+    } else {
+      pagedFilteredTasks = filteredTasks.filter(function(task, index) {
+        return ((pageSize * (currentPage - 1)) <= index && index <= ((pageSize * currentPage) - 1));
+      });
+    }
+
     return (
       <React.Fragment>
         <section className="container__interface">
-          <ControllPanel />
+          <ControllPanel taskText={this.state.taskText}/>
         </section>
         <section className="container__task">
-          <TaskList tasks={this.props.tasks}/>
-          <Paging />
+          <TaskList 
+            tasks={pagedFilteredTasks}
+          />
+          <Paging 
+            numberOfPages={numberOfPages}
+          />
           <Filters />
         </section>
       </React.Fragment>
