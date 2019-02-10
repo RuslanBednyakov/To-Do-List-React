@@ -82,7 +82,7 @@ body {
         flex-wrap: wrap;
         -webkit-box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, 0.21);
         box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, 0.21);
-        width: 350px;
+        width: 370px;
         margin: 0 auto;
         padding: 10px;
         border: 1px solid;
@@ -99,7 +99,7 @@ body {
   box-sizing: border-box;
   height: 33px;
   margin: auto 0;
-  width: 80px;
+  width: 95px;
   color: #e1e1e1;
   font-weight: bold;
   padding: 8px;

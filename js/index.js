@@ -2,9 +2,21 @@ class Filters extends React.Component {
   render() {
     return (
       <div className="container__task_filter">
-        <button className="container__task_button button__filter_active">Active</button>
-        <button className="container__task_button button__filter_complete">Complete</button>
-        <button className="container__task_button button__filter_all">All</button>
+        <button
+          className="container__task_button button__filter_active"
+          onClick={() => this.props.onFilterChange('Active')}>
+        Active
+        </button>
+        <button
+          className="container__task_button button__filter_complete"
+          onClick={() => this.props.onFilterChange('Complete')}>
+        Complete
+        </button>
+        <button
+          className="container__task_button button__filter_all"
+          onClick={() => this.props.onFilterChange('All')}>
+        All
+        </button>
       </div>
     )
   }
@@ -41,7 +53,7 @@ class Task extends React.Component {
         <button
           className="button__complete"
           onClick={() => this.props.onCompleteTask(this.props.id)}>
-        Complete
+        {this.props.isCompleted? "Uncomplete" : "Complete"}
         </button>
         <div className="container__task_list-item-text">{this.props.value}</div>
         <button
@@ -106,7 +118,7 @@ class ControllPanel extends React.Component {
         <button
           className="container__interface_button button__complete_all"
           onClick={this.props.onCompleteAllTasks}>
-        Complete
+        {this.props.isCompleted? "Complete" : "Unomplete"}
         </button>
         <button
           className="container__interface_button button__delete_all"
@@ -135,7 +147,6 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      newTaskText: '',
       isCompleted: true,
       tasks: [],
       pageSize: 6,
@@ -149,6 +160,8 @@ class App extends React.Component {
 
     this.handleDeleteTask = this.handleDeleteTask.bind(this);
     this.handleCompleteTask = this.handleCompleteTask.bind(this);
+
+    this.handleFilterChange = this.handleFilterChange.bind(this);
   }
 
 
@@ -188,13 +201,11 @@ class App extends React.Component {
     if(!this.state.tasks.length) {
       return;
     }
-    
+
     const tasks = this.state.tasks.map(task => {
       task.isCompleted = this.state.isCompleted;
       return task;
     });
-
-    console.log(tasks);
 
     this.setState(state => ({
       tasks: tasks,
@@ -222,6 +233,18 @@ class App extends React.Component {
 
     this.setState({
       tasks: tasks
+    })
+  }
+
+  handleFilterChange(newFilterName) {
+    if (newFilterName === 'Complete') {
+      isCompleted = false;
+    } else {
+      isCompleted = true;
+    }
+    this.setState({
+      filterName: newFilterName,
+      isCompleted: isCompleted
     })
   }
 
@@ -270,6 +293,7 @@ class App extends React.Component {
       <React.Fragment>
         <section className="container__interface">
           <ControllPanel 
+            isCompleted={this.state.isCompleted}
             onNewTaskAdd={this.handleNewTaskAdd}
             onDeleteAllTasks={this.handleDeleteAllTasks}
             onCompleteAllTasks={this.handleCompleteAllTasks}
@@ -284,7 +308,9 @@ class App extends React.Component {
           <Paging 
             numberOfPages={numberOfPages}
           />
-          <Filters />
+          <Filters 
+            onFilterChange={this.handleFilterChange}
+          />
         </section>
       </React.Fragment>
     );
