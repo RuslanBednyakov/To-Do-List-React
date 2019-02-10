@@ -25,7 +25,9 @@ class Filters extends React.Component {
 class Page extends React.Component {
   render() {
     return (
-      <a className="container__pagination_item">{this.props.value}</a>
+      <a
+        className="container__pagination_item"
+        onClick={() => this.props.onPageChange(this.props.value)}>{this.props.value}</a>
     )
   }
 }
@@ -36,7 +38,11 @@ class Paging extends React.Component {
 
     for(let i = 1; i <= this.props.numberOfPages; i++) {
       pages.push(
-        <Page key={i} value={i}/>
+        <Page
+          key={i}
+          value={i}
+          onPageChange={this.props.onPageChange}
+        />
       )
     };
 
@@ -162,6 +168,8 @@ class App extends React.Component {
     this.handleCompleteTask = this.handleCompleteTask.bind(this);
 
     this.handleFilterChange = this.handleFilterChange.bind(this);
+
+    this.handlePageChange=this.handlePageChange.bind(this);
   }
 
 
@@ -248,6 +256,12 @@ class App extends React.Component {
     })
   }
 
+  handlePageChange(newPage) {
+    this.setState({
+      currentPage: newPage
+    })
+  }
+
   filterTasks(tasks) {
     const filterName = this.state.filterName;
 
@@ -307,6 +321,7 @@ class App extends React.Component {
           />
           <Paging 
             numberOfPages={numberOfPages}
+            onPageChange={this.handlePageChange}
           />
           <Filters 
             onFilterChange={this.handleFilterChange}
