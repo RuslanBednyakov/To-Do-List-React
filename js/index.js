@@ -60,21 +60,59 @@ class TaskList extends React.Component {
 }
 
 class ControllPanel extends React.Component {
-  render() {
-    const taskText = this.props.taskText;
+  constructor(props) {
+    super(props);
+    this.state = {
+      newTaskText: '',
+    };
 
+    this.handleNewTaskTextChange = this.handleNewTaskTextChange.bind(this);
+    this.handleNewTaskAdd = this.handleNewTaskAdd.bind(this);
+  }
+
+  
+  handleNewTaskTextChange(e) {
+    this.setState({
+      newTaskText: e.target.value
+    });
+  }
+
+  handleNewTaskAdd() {
+    const newTaskText = this.state.newTaskText;
+    this.setState({
+      newTaskText: ''
+    });
+    this.props.onNewTaskAdd(newTaskText);
+
+  }
+
+  render() {
     return (
-      <form>
-        <button className="container__interface_button button__complete_all">Complete</button>
-        <button className="container__interface_button button__delete_all">Delete</button>
+      <div>
+        <button
+          className="container__interface_button button__complete_all"
+          onClick={this.props.onCompleteAllTasks}>
+          Complete
+        </button>
+        <button
+          className="container__interface_button button__delete_all"
+          onClick={this.props.onDeleteAllTasks}>
+          Delete
+        </button>
         <input
           type="text"
           placeholder="Add new task..."
           className="container__interface_input"
-          value={taskText}
+          value={this.state.newTaskText}
+          onChange={this.handleNewTaskTextChange}
         />
-        <button className="container__interface_button">Add</button>
-      </form>
+        <button
+          className="container__interface_button"
+          onClick={this.handleNewTaskAdd}
+        >
+        Add
+        </button>
+      </div>
     );
   }
 }
@@ -83,13 +121,60 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      taskText: '',
-      isCompleted: false,
+      newTaskText: '',
+      isCompleted: true,
       tasks: [],
       pageSize: 6,
       currentPage: 1,
       filterName: 'All'
     };
+
+    this.handleNewTaskAdd = this.handleNewTaskAdd.bind(this);
+    this.handleDeleteAllTasks = this.handleDeleteAllTasks.bind(this);
+    this.handleCompleteAllTasks = this.handleCompleteAllTasks.bind(this);
+  }
+
+
+  handleNewTaskAdd(newTaskText) {
+    if (!newTaskText.length) {
+      return;
+    }
+
+    let isCompleted
+    if (this.state.filterName === 'Complete') {
+      isCompleted = true;
+    } else {
+      isCompleted = false;
+    }
+
+    const newTask = {
+      value: newTaskText,
+      isCompleted: isCompleted,
+      id: Date.now()
+    };
+
+    this.setState({tasks: this.state.tasks.concat(newTask)});
+  }
+
+  handleDeleteAllTasks() {
+    this.setState({
+      tasks: [],
+      isCompleted: true
+    })
+  }
+
+  handleCompleteAllTasks() {
+    const tasks = this.state.tasks.map(task => {
+      task.isCompleted = this.state.isCompleted;
+      return task;
+    });
+
+    console.log(tasks);
+
+    this.setState(state => ({
+      tasks: tasks,
+      isCompleted: !state.isCompleted
+    }))
   }
 
   filterTasks(tasks) {
@@ -109,10 +194,7 @@ class App extends React.Component {
     return filteredTasks;
   }
 
-  render() {
-    const tasks = this.props.tasks;
-    const filteredTasks = this.filterTasks(tasks);
-    
+  pageFilteredTasks(filteredTasks) {
     const pageSize = this.state.pageSize;
     const currentPage = this.state.currentPage;
     const taskCount = filteredTasks.length;
@@ -128,10 +210,22 @@ class App extends React.Component {
       });
     }
 
+    return [pagedFilteredTasks, numberOfPages];
+  }
+
+  render() {
+    const tasks = this.state.tasks;
+    const filteredTasks = this.filterTasks(tasks);
+    const [pagedFilteredTasks, numberOfPages] = this.pageFilteredTasks(filteredTasks);
+
     return (
       <React.Fragment>
         <section className="container__interface">
-          <ControllPanel taskText={this.state.taskText}/>
+          <ControllPanel 
+            onNewTaskAdd={this.handleNewTaskAdd}
+            onDeleteAllTasks={this.handleDeleteAllTasks}
+            onCompleteAllTasks={this.handleCompleteAllTasks}
+          />
         </section>
         <section className="container__task">
           <TaskList 
@@ -147,17 +241,8 @@ class App extends React.Component {
   }
 }
 
-const TASKS = [
-  {value: "Task 1", isCompleted: true, id: "1"},
-  {value: "Task 2", isCompleted: false, id: "2"},
-  {value: "Task 3", isCompleted: true, id: "3"},
-  {value: "Task 4", isCompleted: true, id: "4"},
-  {value: "Task 5", isCompleted: false, id: "5"},
-  {value: "Task 6", isCompleted: false, id: "6"},
-  {value: "Task 7", isCompleted: true, id: "7"}
-];
 
 ReactDOM.render(
-  <App tasks={TASKS} />,
+  <App />,
   document.getElementById('root')
 );
