@@ -8,4 +8,7 @@ Next clone this repo https://github.com/RuslanBednyakov/To-Do-List.git. You can 
 ```
 git clone https://github.com/RuslanBednyakov/To-Do-List.git
 ```
-then change into that folder
+then change into that folder and run
+```
+npx babel --watch js --out-dir . --presets react-app/prod 
+```
